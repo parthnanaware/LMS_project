@@ -41,8 +41,7 @@
                                             <td>{{ $student->email }}</td>
                                             <td>
                                                 @if ($student->photo)
-                                                    <img src="{{ asset('storage/profiles/'.$student->photo) }}"
-                                                         alt="Profile" width="50" height="50" class="rounded-circle">
+                                                    <img src="{{ asset('storage/profiles/'.$student->photo) }}" alt="Profile" width="50" height="50" class="rounded-circle">
                                                 @else
                                                     <span class="text-muted">No Photo</span>
                                                 @endif
@@ -52,14 +51,9 @@
                                                 <form action="{{ route('student.toggleStatus', $student->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('PATCH')
-                                                 <td>
-    @if ($student->status)
-        <span class="badge bg-success">Active</span>
-    @else
-        <span class="badge bg-danger">Inactive</span>
-    @endif
-</td>
-    
+                                                    <button type="submit" class="btn btn-sm {{ $student->status ? 'btn-success' : 'btn-danger' }}">
+                                                        {{ $student->status ? 'Active' : 'Inactive' }}
+                                                    </button>
                                                 </form>
                                             </td>
                                             <td class="d-flex gap-1">

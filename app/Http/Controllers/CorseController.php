@@ -10,80 +10,53 @@ class CorseController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */
-    public function create()
-    {
-        $subjects = tbl_subject::all();
-        return view('corse.create', compact('subjects'));
-    }
+     */public function index()
+{
+    $courses = tbl_corse::with('subject')->get();
+    return view('corse.index', compact('courses'));
+}
 
-    /**
-     * Store a newly created course in the database.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'subject_id' => 'required|exists:tbl_subject,id',
-            'course_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
-        ]);
+ public function store(Request $request)
+{
 
-        if ($request->hasFile('course_image')) {
-            $imagePath = $request->file('course_image')->store('course_images', 'public');
-        } else {
-            $imagePath = null;
-        }
+    $validated = $request->validate([
+        'course_name' => 'required|string|max:255',
+        'course_description' => 'required|string',
+        'course_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'tbl_subject' => 'required|array',
+        'tbl_subject.*' => 'exists:tbl_subject,subject_id',
+    ]);
 
-        tbl_corse::create([
-            'course_title' => $validated['name'],
-            'course_description' => $validated['description'],
-            'course_image' => $imagePath,
-            'subject_id' => $validated['subject_id'],
-        ]);
 
-        return redirect()->route('corse.index')->with('success', 'Course created successfully.');
-    }
+    $course = new tbl_corse();
 
-    /**
-     * Display the course list.
-     */
-    public function index()
-    {
-        $courses = tbl_corse::with('subject')->paginate(9);
-        return view('corse.index', compact('courses'));
+    $course->course_name = $validated['course_name'];
+    $course->course_description = $validated['course_description'];
+
+
+    if ($request->hasFile('course_image')) {
+        $image = $request->file('course_image');
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+
+        $image->move(public_path('storage/course_images'), $imageName);
+
+        $course->course_image = $imageName;
     }
 
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    $course->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    $course->tbl_subject()->attach($validated['tbl_subject']);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+
+    return redirect('/courselist')->with('success', 'Course added successfully!');
+}
+public function create()
+{
+    $subjects = tbl_subject::all();
+    return view('corse.create', compact('subjects'));
+}
+
 }

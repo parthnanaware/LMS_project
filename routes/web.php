@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CorseController;
+use App\Http\Controllers\trialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
@@ -30,8 +31,9 @@ Route::resource('student', StudentController::class);
 Route::resource('subject', SubjectController::class);
 Route::resource('session', SessionController::class);
 
-Route::patch('/student/{id}/toggle-status', [LoginController::class, 'toggleStatus'])
-    ->name('student.toggleStatus');
+// Route::patch('/student/{id}/toggle-status', [LoginController::class, 'toggleStatus'])
+//     ->name('student.toggleStatus');
+Route::patch('student/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('student.toggleStatus');
 
      Auth::routes();
 
@@ -39,10 +41,10 @@ Route::patch('/student/{id}/toggle-status', [LoginController::class, 'toggleStat
     Route::post('/', [LoginController::class, 'login']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::patch('/student/status/{id}', [LoginController::class, 'toggleStatus'])->name('appuser.toggleStatus');
-// View sessions for specific section
+// View sessions for  section
 Route::get('/session/section/{section_id}', [SessionController::class, 'bySection'])->name('session.bySection');
 
-// Add session for specific section
+// Add session for  section
 Route::get('/session/create/section/{section_id}', [SessionController::class, 'createForSection'])->name('session.create.forSection');
 Route::get('/sessions/section/{section_id}', [SessionController::class, 'bySection'])->name('session.bySection');
 Route::get('/session/create/for-section/{section_id}', [SessionController::class, 'createForSection'])->name('session.create.forSection');
@@ -51,3 +53,11 @@ Route::get('/session/create/for-section/{section_id}', [SessionController::class
 Route::get('/sections/create', [SectionController::class, 'create'])->name('section.create');
 Route::post('/sections', [SectionController::class, 'store'])->name('section.store');
 Route::get('/sections', [SectionController::class, 'index'])->name('section.index');
+
+//corse routs
+Route::get('/courselist', [CorseController::class, 'index'])->name('courselist');
+Route::get('/courseadd', [CorseController::class, 'create'])->name('courseaddform');
+Route::post('/courseadd', [CorseController::class, 'store'])->name('courseadd');
+
+
+Route::post('/ccorse', [trialController::class, 'store'])->name('ccorse');

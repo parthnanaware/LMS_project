@@ -32,25 +32,25 @@
         <ul class="navbar-nav">
             <li class="nav-item">
             <a class="nav-link active bg-gradient-dark text-white" href="{{ url('/') }}">
-                <i class="material-symbols-rounded opacity-5">dashboard</i>
+                <i class="material-symbols-rounded opacity-5"></i>
                 <span class="nav-link-text ms-1">Dashboard</span>
             </a>
             </li>
             <li class="nav-item">
             <a class="nav-link text-dark" href="{{ url('student') }}">
-                <i class="material-symbols-rounded opacity-5">table_view</i>
+                <i class="material-symbols-rounded opacity-5"></i>
                 <span class="nav-link-text ms-1">Student </span>
             </a>
             </li>
             <li class="nav-item">
             <a class="nav-link text-dark" href="{{ url('subject') }}">
-                <i class="material-symbols-rounded opacity-5">receipt_long</i>
+                <i class="material-symbols-rounded opacity-5"></i>
                 <span class="nav-link-text ms-1">Subject </span>
             </a>
             </li>
             <li class="nav-item">
             <a class="nav-link text-dark" href="{{ url('corse') }}">
-                <i class="material-symbols-rounded opacity-5">view_in_ar</i>
+                <i class="material-symbols-rounded opacity-5"></i>
                 <span class="nav-link-text ms-1">corse</span>
             </a>
             </li>

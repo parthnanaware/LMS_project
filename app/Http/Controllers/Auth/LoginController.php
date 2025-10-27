@@ -34,7 +34,7 @@ public function login(Request $request)
 
         if ($user->status === 0) {
             Auth::logout();
-            return redirect()->route('login')->with('success', 'Your account is inactive. Please contact the admin.');
+            return redirect()->route('login')->with('success', 'Your account is inactive.');
         }
 
         if ($user->role === 'admin') {
@@ -51,13 +51,7 @@ public function login(Request $request)
 }
 
 
-    public function toggleStatus($id)
-    {
-        $user = User::findOrFail($id);
-        $user->status = !$user->status;
-        $user->save();
 
-        return redirect()->back()->with('success', 'Student status updated successfully.');
-    }
+
 
 }

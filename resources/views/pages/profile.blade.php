@@ -21,12 +21,11 @@
                 <br>
                 <br>
 
-                <form action="" method="POST" style="display: inline-block;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-primary"
-                        onclick="return confirm('Are you sure you want to delete your profile?')">edit Profile</button>
-                </form>
+               <form action="{{ route('student.edit', ['student' => auth()->user()]) }}" method="GET" style="display: inline-block;">
+    @csrf
+    <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to edit your profile?')">Edit Profile</button>
+</form>
+
             </div>
         </div>
 

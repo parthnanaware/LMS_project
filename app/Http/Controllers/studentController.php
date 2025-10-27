@@ -12,6 +12,7 @@ class studentController extends Controller
 public function index()
 {
     $data = User::where('role', 'student')->get();
+
     return view('student.index', compact('data'));
 }
 
@@ -84,7 +85,7 @@ public function index()
 
         $student->save();
 
-        return redirect()->route('student.index')->with('success', 'Student updated successfully!');
+        return redirect()->route('student   .index')->with('success', 'Student updated successfully!');
     }
 
     public function destroy($id)
@@ -99,4 +100,13 @@ public function index()
 
         return view('pages.profile', compact('user'));
     }
+
+       public function toggleStatus($id)
+{
+    $student = User::findOrFail($id);
+    $student->status = !$student->status; // Toggle the status
+    $student->save();
+
+    return redirect()->route('student.index')->with('success', 'Student status updated successfully!');
+}
 }

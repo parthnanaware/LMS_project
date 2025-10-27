@@ -71,21 +71,16 @@ class SessionController extends Controller
 
     public function edit($id)
     {
-        // Find the session to edit
         $session = tbl_session::findOrFail($id);
 
-        // Get subjects and pass to the edit view
-        $subjects = tbl_subject::all(); // Assuming you have a tbl_subject model
+        $subjects = tbl_subject::all();
         return view('session.edit', compact('session', 'subjects'));
     }
 
-    // Update the session
     public function update(Request $request, $id)
     {
-        // Find the session to update
         $session = tbl_session::findOrFail($id);
 
-        // Validate the incoming request data
         $request->validate([
             'titel' => 'required|string|max:255',
             'type' => 'required|string|max:255',
@@ -93,34 +88,25 @@ class SessionController extends Controller
             'pdf' => 'nullable|mimes:pdf|max:10000',
         ]);
 
-        // Update the session fields
         $session->titel = $request->titel;
         $session->type = $request->type;
 
-        // Store the new video file if it exists
         if ($request->hasFile('video')) {
-            // Delete old video if it exists
             if ($session->video && Storage::disk('public')->exists($session->video)) {
                 Storage::disk('public')->delete($session->video);
             }
-            // Store the new video
             $session->video = $request->file('video')->store('videos', 'public');
         }
 
-        // Store the new PDF file if it exists
         if ($request->hasFile('pdf')) {
-            // Delete old PDF if it exists
             if ($session->pdf && Storage::disk('public')->exists($session->pdf)) {
                 Storage::disk('public')->delete($session->pdf);
             }
-            // Store the new PDF
             $session->pdf = $request->file('pdf')->store('pdfs', 'public');
         }
 
-        // Save the updated session
         $session->save();
 
-        // Redirect back to session index
         return redirect()->route('session.index')->with('success', 'Session updated successfully!');
     }
     public function destroy(tbl_session $session)

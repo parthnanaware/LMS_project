@@ -49,16 +49,20 @@ public function index()
 
 public function update(Request $request, tbl_subject $subject)
 {
+
     $request->validate([
      'subject_name' => 'required|string|max:255',
      'subject_des'  => 'required|string',
      'subject_img'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
     ]);
 
     $subject->subject_name = $request->subject_name;
+
     $subject->subject_des  = $request->subject_des;
 
     if ($request->hasFile('subject_img')) {
+
         $subject->subject_img = $request->file('subject_img')->store('sub', 'public');
     }
 

@@ -1,61 +1,58 @@
 @extends('layout.master')
-
+@section('title', 'Course List')
 @section('admincontent')
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-9 col-md-10">
-            <div class="card shadow-lg">
-                <div class="card-header bg-gradient-dark text-center py-3">
-                    <h4 class="mb-0 text-light">Course List</h4>
-                </div>
-                <div class="card-body">
+    <div class="card">
+        <div class="card-header">
+            <h3>Course List</h3>
 
-                    <div class="mb-4">
-                        <a href="{{ route('corse.create') }}" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Create New Course
-                        </a>
-                    </div>
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <div class="row">
-                        @foreach($courses as $course)
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card shadow-sm">
-                                    <img src="{{ asset('storage/' . $course->course_image) }}" alt="Course Image" class="card-img-top" style="height: 200px; object-fit: cover;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ $course->course_title }}</h5>
-                                        <p class="card-text">
-                                            {{ Str::limit($course->course_description, 100) }}
-                                        </p>
-                                        <p class="text-muted">Subject:
-                                            <span class="font-weight-bold">
-                                                {{ $course->subject ? $course->subject->subject_name : 'No Subject Assigned' }}
-                                            </span>
-                                        </p>
-                                        <a href="{{ route('course.show', $course->id) }}" class="btn btn-primary w-100">
-                                            View Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $courses->links() }}
-                    </div>
-                </div>
+            <div class="card-header-right">
+                <a href="{{ route('courseaddform') }}" class="btn hor-grd btn-grd-primary">Add Course</a>
             </div>
         </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th> Image</th>
+                    <th>Course Name</th>
+                    <th>Subjects</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($courses as $course)
+                    <tr>
+                        <th>{{ $course->course_id }}</th>
+
+                        <td>
+                            @if ($course->course_image)
+                                <img src="{{ asset('storage/course_images/' . $course->course_image) }}" alt="Course Image" width="80" height="80">
+                            @else
+                                <img src="{{ asset('default-avatar.png') }}" alt="Default Image" width="60" height="60">
+                            @endif
+                        </td>
+
+                        <td>{{ $course->course_name }}</td>
+
+                        <td>
+                            @foreach ($course->subject as $subject)
+                                <span class="badge badge-info">{{ $subject->sub_title }}</span>
+                            @endforeach
+                        </td>
+
+                        <td>
+                            <a href="{{ route('corse.edit', $course->course_id) }}" class="btn hor-grd btn-grd-primary"><i class="ti-pencil"></i></a>
+
+                            <form action="{{ route('corse.destroy', $course->course_id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn hor-grd btn-grd-danger" onclick="return confirm('Are you sure?')"><i class="ti-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-</div>
 @endsection

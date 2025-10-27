@@ -16,10 +16,16 @@ class tbl_corse extends Model
         'course_image',
         'subject_id',
     ];
-    public function subject()
-    {
-        return $this->belongsTo(tbl_subject::class, 'subject_id');
-    }
+  public function subject()
+{
+    return $this->belongsToMany(tbl_subject::class,
+    'course_subject', 'course_id', 'subject_id');
+}
+    public function subjects()
+{
+    return $this->belongsToMany(tbl_student::class, 'tbl_subject', 'subject_id', 'subject_id');
 }
 
+
+}
 

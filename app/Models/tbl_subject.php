@@ -18,5 +18,8 @@ class tbl_subject extends Model
     {
         return $this->hasMany(tbl_section::class, 'sub_id');
     }
-
+public function courses()
+{
+    return $this->belongsToMany(tbl_corse::class, 'course_subject', 'subject_id', 'course_id');
+}
 }
