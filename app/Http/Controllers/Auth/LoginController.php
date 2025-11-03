@@ -32,7 +32,7 @@ public function login(Request $request)
     if (Auth::attempt($request->only('email', 'password'))) {
         $user = Auth::user();
 
-        if ($user->status === 0) {
+        if ($user->status === 1) {
             Auth::logout();
             return redirect()->route('login')->with('success', 'Your account is inactive.');
         }
@@ -40,7 +40,7 @@ public function login(Request $request)
         if ($user->role === 'admin') {
             return redirect()->intended('/');
         } elseif ($user->role === 'student') {
-            return redirect()->intended('/studentdashabord');
+            return redirect()->intended('/sd');
         }
 
     }

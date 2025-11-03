@@ -13,16 +13,18 @@ class SessionController extends Controller
 
     public function index()
     {
+        
         $sessions = tbl_session::all();
         return view('session.index', compact('sessions'));
     }
 
 
     public function bySection($section_id)
-    {
-        $sessions = tbl_session::where('section_id', $section_id)->get();
-        return view('session.index', compact('sessions', 'section_id'));
-    }
+{
+    $sessions = tbl_session::where('section_id', $section_id)->get();
+    return view('session.index', compact('sessions', 'section_id'));
+}
+
 
 
     public function create()
@@ -68,14 +70,18 @@ class SessionController extends Controller
         return redirect()->route('session.index')->with('success', 'Session created successfully.');
     }
 
+public function edit($id)
+{
+    $session = tbl_session::findOrFail($id);
 
-    public function edit($id)
-    {
-        $session = tbl_session::findOrFail($id);
-
-        $subjects = tbl_subject::all();
-        return view('session.edit', compact('session', 'subjects'));
+    if (!$session->section_id) {
+        return redirect()->route('session.index')
+                         ->with('error', 'Session does not belong to any section.');
     }
+
+    return view('session.edit', compact('session'));
+}
+
 
     public function update(Request $request, $id)
     {
@@ -107,7 +113,10 @@ class SessionController extends Controller
 
         $session->save();
 
-        return redirect()->route('session.index')->with('success', 'Session updated successfully!');
+return redirect()->route('session.bySection', ['section_id' => $request->section_id ?? 0])
+                 ->with('success', 'Session updated successfully!');
+
+        // return redirect()->route('session.index')->with('success', 'Session updated successfully!');
     }
     public function destroy(tbl_session $session)
     {

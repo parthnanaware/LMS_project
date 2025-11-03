@@ -7,25 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 class tbl_corse extends Model
 {
     protected $table = 'tbl_corse';
-
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'course_id';
 
     protected $fillable = [
-        'course_title',
+        'course_name',
         'course_description',
         'course_image',
         'subject_id',
     ];
-  public function subject()
-{
-    return $this->belongsToMany(tbl_subject::class,
-    'course_subject', 'course_id', 'subject_id');
-}
+
+    protected $casts = [
+        'subject_id' => 'array', 
+    ];
+
+    public function getSubjectIdAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
     public function subjects()
-{
-    return $this->belongsToMany(tbl_student::class, 'tbl_subject', 'subject_id', 'subject_id');
+    {
+        return tbl_subject::whereIn('subject_id', $this->subject_id ?? [])->get();
+    }
 }
-
-
-}
-

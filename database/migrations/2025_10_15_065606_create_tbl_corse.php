@@ -10,7 +10,8 @@ return new class extends Migration {
         Schema::create('tbl_corse', function (Blueprint $table) {
             $table->id('course_id');
             $table->string('course_name');
-            $table->string('course_image');
+            $table->json('subject_id')->nullable();
+            $table->string('course_image')->nullable();
             $table->text('course_description');
             $table->timestamps();
         });

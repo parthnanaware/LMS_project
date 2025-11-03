@@ -7,9 +7,7 @@
                 <div class="card my-4 shadow-lg">
                     <div class="card-header bg-gradient-dark text-center py-3 d-flex justify-content-between align-items-center">
                         <h4 class="mb-0 text-light">Add Session</h4>
-                        <a href="{{ route('session.index') }}" class="btn btn-light btn-sm shadow-sm">
-                            <i class="fa fa-list me-1"></i> Session List
-                        </a>
+
                     </div>
 
                     <div class="card-body px-4">
@@ -29,7 +27,7 @@
                                 <select name="section_id" id="section_id" class="form-control shadow-sm" required>
                                     <option value="">-- Select Section --</option>
                                     @foreach($sections as $section)
-                                        <option value="{{ $section->id }}" {{ request('section_id') == $section->id ? 'selected' : '' }}>
+                                        <option value="{{ $section->id }}" {{ request('section_id') == $section->section_id ? 'selected' : '' }}>
                                             {{ $section->tital }}
                                         </option>
                                     @endforeach

@@ -9,10 +9,12 @@
                     <h6 class="text-white ps-3">Session List</h6>
                     @if(isset($section_id))
                         <div class="d-flex gap-2 me-3">
-                            <a href="{{ route('session.create.forSection', $section_id) }}" class="btn btn-sm btn-primary">Add Session</a>
+                        <a href="{{ route('session.create') }}" class="btn btn-sm btn-primary me-3">Add New Session</a>
+
                         </div>
                     @else
-                        <a href="{{ route('session.create') }}" class="btn btn-sm btn-primary me-3">Add New Session</a>
+                            <a href="{{ route('session.bySection', $section_id) }}" class="btn btn-sm btn-primary">Add Session</a>
+
                     @endif
                 </div>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CorseController;
+use App\Http\Controllers\enrolmentController;
 use App\Http\Controllers\trialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -15,6 +16,8 @@ Route::post('/', [LoginController::class, 'login']);
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('profile', [studentController::class, 'showProfile'])->name('profile');
 
+Route::get('/sd', function () {
+return view('studentlayout.studentmaster');})->name('student.dashboard');
 
 
 Route::get('/section', [SectionController::class, 'index'])->name('section.index');
@@ -26,28 +29,25 @@ Route::get('/section/{section}/edit', [SectionController::class, 'edit'])->name(
 Route::put('/section/{section}', [SectionController::class, 'update'])->name('section.update');
 Route::delete('/section/{id}', [SectionController::class, 'destroy'])->name('section.destroy');
 
-Route::resource('corse',CorseController::class);
+Route::resource('corse', CorseController::class);
 Route::resource('student', StudentController::class);
 Route::resource('subject', SubjectController::class);
 Route::resource('session', SessionController::class);
+Route::resource('enrolment', enrolmentController::class);
 
-// Route::patch('/student/{id}/toggle-status', [LoginController::class, 'toggleStatus'])
-//     ->name('student.toggleStatus');
+
+
 Route::patch('student/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('student.toggleStatus');
 
-     Auth::routes();
+Auth::routes();
 
-    Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/', [LoginController::class, 'login']);
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::patch('/student/status/{id}', [LoginController::class, 'toggleStatus'])->name('appuser.toggleStatus');
-// View sessions for  section
-Route::get('/session/section/{section_id}', [SessionController::class, 'bySection'])->name('session.bySection');
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/', [LoginController::class, 'login']);
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::patch('/student/status/{id}', [LoginController::class, 'toggleStatus'])->name('appuser.toggleStatus');
 
-// Add session for  section
-Route::get('/session/create/section/{section_id}', [SessionController::class, 'createForSection'])->name('session.create.forSection');
-Route::get('/sessions/section/{section_id}', [SessionController::class, 'bySection'])->name('session.bySection');
-Route::get('/session/create/for-section/{section_id}', [SessionController::class, 'createForSection'])->name('session.create.forSection');
+Route::get('/session/section/{section_id}', [SessionController::class, 'bySection'])
+     ->name('session.bySection');
 
 
 Route::get('/sections/create', [SectionController::class, 'create'])->name('section.create');
@@ -60,4 +60,4 @@ Route::get('/courseadd', [CorseController::class, 'create'])->name('courseaddfor
 Route::post('/courseadd', [CorseController::class, 'store'])->name('courseadd');
 
 
-Route::post('/ccorse', [trialController::class, 'store'])->name('ccorse');
+Route::post('/ccorse', [CorseController::class, 'store'])->name('ccorse');

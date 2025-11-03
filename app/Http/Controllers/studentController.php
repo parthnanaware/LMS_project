@@ -85,7 +85,7 @@ public function index()
 
         $student->save();
 
-        return redirect()->route('student   .index')->with('success', 'Student updated successfully!');
+        return redirect()->route('student.index')->with('success', 'Student updated successfully!');
     }
 
     public function destroy($id)
@@ -104,7 +104,7 @@ public function index()
        public function toggleStatus($id)
 {
     $student = User::findOrFail($id);
-    $student->status = !$student->status; // Toggle the status
+    $student->status = !$student->status;
     $student->save();
 
     return redirect()->route('student.index')->with('success', 'Student status updated successfully!');

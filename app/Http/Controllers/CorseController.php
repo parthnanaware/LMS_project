@@ -9,54 +9,114 @@ use Illuminate\Http\Request;
 class CorseController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */public function index()
+     * Show list of all courses
+     */
+    public function index()
+    {
+        $courses = tbl_corse::all();
+        return view('corse.index', compact('courses'));
+    }
+
+    /**
+     * Show form to create a new course
+     */
+    public function create()
+    {
+        $subjects = tbl_subject::all();
+        return view('corse.create', compact('subjects'));
+    }
+
+    /**
+     * Store new course
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'course_name' => 'required|string|max:255',
+            'course_description' => 'required|string',
+            'course_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'subject_id' => 'required|array',
+            'subject_id.*' => 'exists:tbl_subject,subject_id',
+        ]);
+
+        $course = new tbl_corse();
+        $course->course_name = $validated['course_name'];
+        $course->course_description = $validated['course_description'];
+        $course->subject_id = $validated['subject_id'];
+
+        if ($request->hasFile('course_image')) {
+            $image = $request->file('course_image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('storage/course_images'), $imageName);
+            $course->course_image = $imageName;
+        }
+
+        $course->save();
+
+        return redirect()->route('courselist')->with('success', 'Course added successfully!');
+    }
+/**
+ * Show form to edit an existing course
+ */
+public function edit($id)
 {
-    $courses = tbl_corse::with('subject')->get();
-    return view('corse.index', compact('courses'));
+    $course = tbl_corse::findOrFail($id);
+    $subjects = tbl_subject::all();
+
+    $course->subject_id = is_array($course->subject_id)
+        ? $course->subject_id
+        : json_decode($course->subject_id   , true);
+
+    return view('corse.edit', compact('course', 'subjects'));
 }
 
- public function store(Request $request)
+/**
+ * Update an existing course
+ */
+public function update(Request $request, $id)
 {
-
     $validated = $request->validate([
         'course_name' => 'required|string|max:255',
         'course_description' => 'required|string',
-        'course_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'tbl_subject' => 'required|array',
-        'tbl_subject.*' => 'exists:tbl_subject,subject_id',
+        'course_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'subject_id' => 'required|array',
+        'subject_id.*' => 'exists:tbl_subject,subject_id',
     ]);
 
-
-    $course = new tbl_corse();
-
-    $course->course_name = $validated['course_name'];
-    $course->course_description = $validated['course_description'];
-
+     $course = tbl_corse::findOrFail($id);
+     $course->course_name = $validated['course_name'];
+      $course->course_description = $validated['course_description'];
+     $course->subject_id = $validated['subject_id'];
 
     if ($request->hasFile('course_image')) {
-        $image = $request->file('course_image');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
+        if ($course->course_image && file_exists(public_path('storage/course_images/' . $course->course_image))) {
+            unlink(public_path('storage/course_images/' . $course->course_image));
+        }
 
-
-        $image->move(public_path('storage/course_images'), $imageName);
-
-        $course->course_image = $imageName;
+          $image = $request->file('course_image');
+           $imageName = time() . '.' . $image->getClientOriginalExtension();
+           $image->move(public_path('storage/course_images'), $imageName);
+           $course->course_image = $imageName;
     }
-
 
     $course->save();
 
-
-    $course->tbl_subject()->attach($validated['tbl_subject']);
-
-
-    return redirect('/courselist')->with('success', 'Course added successfully!');
-}
-public function create()
-{
-    $subjects = tbl_subject::all();
-    return view('corse.create', compact('subjects'));
+    return redirect()->route('courselist')->with('success', 'Course updated successfully!');
 }
 
+    /**
+     * Delete a course
+     */
+    public function destroy($id)
+    {
+        $course = tbl_corse::findOrFail($id);
+
+        if ($course->course_image && file_exists(public_path('storage/course_images/' . $course->course_image))) {
+            unlink(public_path('storage/course_images/' . $course->course_image));
+        }
+
+        $course->delete();
+
+        return redirect()->route('courselist')->with('success', 'Course deleted successfully!');
+    }
 }

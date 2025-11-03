@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/apple-icon.png">
     <link rel="icon" type="image/png" href="/assets/img/favicon.png">
-    <title>Material Dashboard 3 - Admin Panel</title>
+    <title>Student learing manegment </title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
     <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
@@ -52,6 +52,12 @@
             <a class="nav-link text-dark" href="{{ url('corse') }}">
                 <i class="material-symbols-rounded opacity-5"></i>
                 <span class="nav-link-text ms-1">corse</span>
+            </a>
+            </li>
+                   <li class="nav-item">
+            <a class="nav-link text-dark" href="{{ url('enrolment') }}">
+                <i class="material-symbols-rounded opacity-5"></i>
+                <span class="nav-link-text ms-1">Inrolement</span>
             </a>
             </li>
             {{-- <li class="nav-item">

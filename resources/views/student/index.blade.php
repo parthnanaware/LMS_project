@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="text-white text-capitalize ps-3">Student List</h6>
+                        <h6 class="text-white text-capitalize ps-3">Student List</h6>`
                         <a href="{{ route('student.create') }}" class="btn btn-sm btn-primary me-3">Add New Student</a>
                     </div>
                 </div>
@@ -51,8 +51,8 @@
                                                 <form action="{{ route('student.toggleStatus', $student->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="btn btn-sm {{ $student->status ? 'btn-success' : 'btn-danger' }}">
-                                                        {{ $student->status ? 'Active' : 'Inactive' }}
+                                                    <button type="submit" class="btn btn-sm {{ $student->status ? 'btn-danger' : 'btn-success' }}">
+                                                        {{ $student->status ? 'Inactive ' : 'Active'}}
                                                     </button>
                                                 </form>
                                             </td>

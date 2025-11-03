@@ -6,7 +6,7 @@
         <div class="col-lg-6 col-md-8">
             <div class="card my-4 shadow-lg">
                 <div class="card-header bg-gradient-dark text-center py-3">
-                    <h4 class="mb-0 text-light">Edit Subject</h4>
+                    <h4 class="mb-0 text-light">Edit Subject</h4>         
                 </div>
 
                 <div class="card-body px-4">
