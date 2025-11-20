@@ -37,6 +37,14 @@
                             <label for="course_description" class="form-label">Description</label>
                             <textarea name="course_description" rows="4" class="form-control" required></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="mrp" class="form-label">MRP</label>
+                            <input type="text" name="mrp" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sell_price" class="form-label">sell sell_price</label>
+                            <input type="text" name="sell_price" class="form-control" required>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Select Subjects</label>

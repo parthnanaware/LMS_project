@@ -13,7 +13,7 @@ class SessionController extends Controller
 
     public function index()
     {
-        
+
         $sessions = tbl_session::all();
         return view('session.index', compact('sessions'));
     }
@@ -44,31 +44,41 @@ class SessionController extends Controller
 
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'titel' => 'required|string|max:255',
-            'type' => 'required|string|max:100',
-            'section_id' => 'required|integer',
-            'video' => 'nullable|url',
-            'pdf' => 'nullable|mimes:pdf|max:10240',
-            'task' => 'nullable|string',
-            'exam' => 'nullable|string',
-        ]);
+{
+    $data = $request->validate([
+        'titel' => 'required|string|max:255',
+        'type' => 'required|string|max:100',
+        'section_id' => 'required|integer',
+        'video' => 'nullable|url',
+        'pdf' => 'nullable|file|mimes:pdf|max:10240',
+        'task' => 'nullable|file|mimes:pdf|max:10240',
+        'exam' => 'nullable|file|mimes:pdf|max:10240',
+    ]);
 
-        if ($request->hasFile('pdf')) {
-                  $data['pdf'] = $request->file('pdf')->store('sessions/pdfs', 'public');
-        }
-
-        tbl_session::create($data);
-
-        if ($request->filled('section_id')) {
-
-            return redirect()->route('session.bySection', $request->section_id)
-                ->with('success', 'Session added to section successfully.');
-        }
-
-        return redirect()->route('session.index')->with('success', 'Session created successfully.');
+    // store files consistently
+    if ($request->hasFile('pdf')) {
+        $data['pdf'] = $request->file('pdf')->store('sessions/pdfs', 'public');
     }
+
+    if ($request->hasFile('task')) {
+        $data['task'] = $request->file('task')->store('sessions/pdfs', 'public');
+    }
+
+    if ($request->hasFile('exam')) {
+        $data['exam'] = $request->file('exam')->store('sessions/pdfs', 'public');
+    }
+
+    // create session
+    tbl_session::create($data);
+
+    // redirect to section listing (if provided) otherwise index
+    if ($request->filled('section_id')) {
+        return redirect()->route('session.bySection', $request->section_id)
+            ->with('success', 'Session added to section successfully.');
+    }
+
+    return redirect()->route('session.index')->with('success', 'Session created successfully.');
+}
 
 public function edit($id)
 {

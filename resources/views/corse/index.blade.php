@@ -3,13 +3,12 @@
 @section('admincontent')
 <div class="container-fluid py-4">
     <div class="row">
-        <div class="col-12">
+         <div class="col-12">
             <div class="card shadow-lg">
-     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-    <h6 class="text-white text-capitalize ps-3 mb-0">Course List</h6> <!-- mb-0 to remove bottom margin -->
-    <a href="{{ route('corse.create') }}" class="btn btn-sm btn-primary ms-auto me-3">Add New Course</a> <!-- ms-auto for right alignment, me-3 for spacing -->
-</div>
-
+                <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                    <h6 class="text-white text-capitalize ps-3 mb-0">Course List</h6> <!-- mb-0 to remove bottom margin -->
+                    <a href="{{ route('corse.create') }}" class="btn btn-sm btn-primary ms-auto me-3">Add New Course</a> <!-- ms-auto for right alignment, me-3 for spacing -->
+                </div>
 
                 <div class="card-body px-0 pt-0 pb-2">
                     @if(session('success'))
@@ -28,6 +27,8 @@
                                         <th>Description</th>
                                         <th>Subjects</th>
                                         <th>Image</th>
+                                        <th>mrp</th>
+                                        <th>sell price</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -40,7 +41,11 @@
 
                                             <td>
                                                 @php
-                                                    $subjectNames = \App\Models\tbl_subject::whereIn('subject_id', $course->subject_id ?? [])->pluck('subject_name')->toArray();
+                                                    // Ensure subject_id is an array
+                                                    $subjectIds = is_array($course->subject_id) ? $course->subject_id : explode(',', $course->subject_id ?? '');
+
+                                                    // Fetch subject names
+                                                    $subjectNames = \App\Models\tbl_subject::whereIn('subject_id', $subjectIds)->pluck('subject_name')->toArray();
                                                 @endphp
                                                 {{ implode(', ', $subjectNames) }}
                                             </td>
@@ -53,6 +58,8 @@
                                                 @endif
                                             </td>
 
+                                            <td>{{ $course->mrp }}</td>
+                                            <td>{{ $course->sell_price }}</td>
                                             <td>
                                                 <a href="{{ route('corse.edit', $course->course_id) }}" class="btn btn-sm btn-warning">Edit</a>
                                                 <form action="{{ route('corse.destroy', $course->course_id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Delete this course?');">

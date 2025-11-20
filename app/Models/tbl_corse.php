@@ -13,11 +13,13 @@ class tbl_corse extends Model
         'course_name',
         'course_description',
         'course_image',
+        'mrp',
+        'sell_price',
         'subject_id',
     ];
 
     protected $casts = [
-        'subject_id' => 'array', 
+        'subject_id' => 'array',
     ];
 
     public function getSubjectIdAttribute($value)
@@ -29,4 +31,10 @@ class tbl_corse extends Model
     {
         return tbl_subject::whereIn('subject_id', $this->subject_id ?? [])->get();
     }
+    // inside tbl_corse model
+public function enrolments()
+{
+    return $this->hasMany(\App\Models\tbl_enrolment::class, 'course_id', 'course_id');
+}
+
 }

@@ -6,23 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('enrolment', function (Blueprint $table) {
+        Schema::create('tbl_enrolment', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('course_id');
+            $table->decimal('mrp', 10, 2);
+            $table->decimal('sell_price', 10, 2);
             $table->timestamps();
+
+            // reference the actual users table (lowercase 'users')
+            $table->foreign('student_id')
+                  ->references('id')->on('users')
+                  ->onDelete('cascade');
+
+            // reference the actual courses table (fix name according to your DB)
+            $table->foreign('course_id')
+                  ->references('course_id')->on('tbl_corse') // or 'tbl_courses' if you rename table
+                  ->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('enrolment');
+        Schema::dropIfExists('tbl_enrolment');
     }
 };
-

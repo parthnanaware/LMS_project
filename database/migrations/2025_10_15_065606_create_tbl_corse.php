@@ -12,6 +12,8 @@ return new class extends Migration {
             $table->string('course_name');
             $table->json('subject_id')->nullable();
             $table->string('course_image')->nullable();
+            $table->string('mrp');
+            $table->string('sell_price');
             $table->text('course_description');
             $table->timestamps();
         });

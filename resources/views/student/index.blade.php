@@ -5,18 +5,39 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
+                <!-- Card Header -->
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="text-white text-capitalize ps-3">Student List</h6>`
+                        <h6 class="text-white text-capitalize ps-3">Student List</h6>
                         <a href="{{ route('student.create') }}" class="btn btn-sm btn-primary me-3">Add New Student</a>
                     </div>
                 </div>
 
+                <!-- Card Body -->
                 <div class="card-body px-3 pb-2">
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
 
+                    <!-- Alerts -->
+                    @foreach (['success', 'error', 'warning'] as $msg)
+                        @if(session($msg))
+                            <div class="alert alert-{{ $msg == 'error' ? 'danger' : $msg }} alert-dismissible fade show" id="alert-{{ $msg }}">
+                                {{ session($msg) }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    <script>
+                        // Auto-hide all alerts after 3 seconds
+                        setTimeout(function() {
+                            document.querySelectorAll('.alert').forEach(function(alert) {
+                                alert.classList.remove('show');
+                                alert.classList.add('hide');
+                                alert.style.display = 'none';
+                            });
+                        }, 3000);
+                    </script>
+
+                    <!-- Table -->
                     @if($data->isEmpty())
                         <p class="text-muted">No students found.</p>
                     @else
@@ -51,8 +72,8 @@
                                                 <form action="{{ route('student.toggleStatus', $student->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="btn btn-sm {{ $student->status ? 'btn-danger' : 'btn-success' }}">
-                                                        {{ $student->status ? 'Inactive ' : 'Active'}}
+                                                    <button type="submit" class="btn btn-sm {{ $student->status ? 'btn-success' : 'btn-danger' }}">
+                                                        {{ $student->status ? 'Active ' : 'Inactive'}}
                                                     </button>
                                                 </form>
                                             </td>
@@ -70,6 +91,7 @@
                             </table>
                         </div>
                     @endif
+
                 </div>
             </div>
         </div>
