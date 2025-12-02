@@ -146,6 +146,16 @@ public function apiGetCourses()
 }
 
 // API: Get single course
+// inside CorseController.php
+
+// API: Get single course
+// API: Get single course (with subjects and their sections)
+// inside CorseController.php
+
+// API: Get single course (with subjects and their sections)
+// inside CorseController.php
+
+// API: Get single course
 public function apiGetCourseById($id)
 {
     $course = tbl_corse::find($id);
@@ -154,11 +164,33 @@ public function apiGetCourseById($id)
         return response()->json(['status' => 'error', 'message' => 'Course not found'], 404);
     }
 
-    $course->subject_id = is_string($course->subject_id) ? json_decode($course->subject_id, true) : $course->subject_id;
+    // Decode subject_id to array if stored as JSON string
+    $subjectIds = is_string($course->subject_id) ? json_decode($course->subject_id, true) : $course->subject_id;
+    if (!is_array($subjectIds)) {
+        $subjectIds = [];
+    }
+
+    // Fetch subject rows (subject_id is assumed to be the primary key in tbl_subject)
+    $subjects = [];
+    if (!empty($subjectIds)) {
+        $subjects = \App\Models\tbl_subject::whereIn('subject_id', $subjectIds)->get()->map(function($s){
+            return [
+                'subject_id' => $s->subject_id,
+                'subject_name' => $s->subject_name ?? $s->name ?? null,
+                'description' => $s->description ?? null,
+            ];
+        })->toArray();
+    }
+
+    // Normalize and include image URL
+    $course->subject_id = $subjectIds;
+    $course->subjects = $subjects;
     $course->course_image_url = $course->course_image ? url('storage/course_images/' . $course->course_image) : null;
 
     return response()->json(['status' => 'success', 'data' => $course], 200);
 }
+
+
 
 // API: Add new course
 public function apiCreateCourse(Request $request)

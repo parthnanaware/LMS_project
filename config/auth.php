@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+         'api' => [
+        'driver'   => 'sanctum', // 🔹 for Sanctum tokens
+        'provider' => 'users',
+    ],
     ],
 
     /*
@@ -60,15 +65,19 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
-        ],
-
         // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
+        //     'driver' => 'eloquent',
+        //     'model' => env('AUTH_MODEL', App\Models\User::class),
         // ],
+
+        'users' => [
+            'driver' => 'database',
+            'table' => 'users',
+        ],
+        'api' => [
+        'driver'   => 'sanctum', // 🔹 for Sanctum tokens
+        'provider' => 'users',
+    ],
     ],
 
     /*

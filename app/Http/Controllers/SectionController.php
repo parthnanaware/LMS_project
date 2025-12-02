@@ -67,6 +67,36 @@ return redirect()->route('section.bySubject', ['subject_id' => $request->sub_id]
 
         return back()->with('success', 'Section deleted successfully.');
     }
+
+
+
+
+
+    public function getSectionsBySubject($subject_id)
+    {
+
+
+
+        // Use your actual column name 'sub_id'
+        $sections = tbl_section::where('sub_id', $subject_id)->get();
+
+        $normalized = $sections->map(function($s) {
+            return [
+                'section_id'   => $s->id ?? $s->section_id ?? null,
+                'subject_id'   => $s->sub_id ?? null,
+                'section_name' => $s->tital ?? $s->title ?? null,
+                'description'  => $s->dis ?? null,
+                'resource'     => $s->resource ?? null,
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $normalized
+        ], 200);
+    }
 }
+
+
 
 
