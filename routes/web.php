@@ -81,3 +81,9 @@ Route::get('session/{id}/edit', [SessionController::class, 'edit'])->name('sessi
 Route::post('session/{id}/update', [SessionController::class, 'update'])->name('session.update');
 Route::delete('session/{id}', [SessionController::class, 'destroy'])->name('session.destroy');
 
+
+
+// ⭐ STATUS UPDATE ROUTE (Direct from Index Page)
+Route::put('/enrolment/status/{id}',
+    [enrolmentController::class, 'updateStatus']
+)->name('enrolment.updateStatus');

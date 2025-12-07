@@ -21,7 +21,7 @@ class ApiController extends Controller
             'data' => $data,
             'message' => 'Students retrieved successfully'
         ]);
-    }
+    }   
 
     return view('student.index', compact('data'));
 }

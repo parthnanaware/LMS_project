@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class tbl_corse extends Model
 {
-    protected $table = 'tbl_corse';
+    protected $table      = 'tbl_corse';
     protected $primaryKey = 'course_id';
 
     protected $fillable = [
@@ -18,23 +18,30 @@ class tbl_corse extends Model
         'subject_id',
     ];
 
+    // subject_id JSON <-> array casting
     protected $casts = [
         'subject_id' => 'array',
     ];
 
-    public function getSubjectIdAttribute($value)
-    {
-        return $value ? json_decode($value, true) : [];
-    }
+    // ❌ NO getSubjectIdAttribute here (double decode टाळलं)
 
+    // Optional helper: subjects via JSON ids (not a real relationship)
     public function subjects()
     {
-        return tbl_subject::whereIn('subject_id', $this->subject_id ?? [])->get();
-    }
-    // inside tbl_corse model
-public function enrolments()
-{
-    return $this->hasMany(\App\Models\tbl_enrolment::class, 'course_id', 'course_id');
-}
+        $ids = $this->subject_id ?? [];
+        if (!is_array($ids) || empty($ids)) {
+            return collect([]);
+        }
 
+        return tbl_subject::whereIn('subject_id', $ids)->get();
+    }
+
+    public function enrolments()
+    {
+        return $this->hasMany(
+            \App\Models\tbl_enrolment::class,
+            'course_id',
+            'course_id'
+        );
+    }
 }

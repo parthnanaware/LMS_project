@@ -187,7 +187,7 @@ return redirect()->route('session.bySection', ['section_id' => $request->section
      */
     protected function normalizeSession(tbl_session $s)
     {
-        // prefer id or section-specific PK 
+        // prefer id or section-specific PK
         $sessionId = $s->id ?? $s->session_id ?? null;
 
         // build public URLs if files exist on 'public' disk

@@ -71,30 +71,27 @@ return redirect()->route('section.bySubject', ['subject_id' => $request->sub_id]
 
 
 
-
     public function getSectionsBySubject($subject_id)
-    {
+{
+    $sections = tbl_section::where('sub_id', $subject_id)->get();
+
+    $normalized = $sections->map(function($s) {
+        return [
+            'section_id'   => $s->id,
+            'subject_id'   => $s->sub_id,
+            'section_name' => $s->tital,
+            'description'  => $s->dis,
+            'resource'     => $s->resource ?? null
+        ];
+    });
+
+    return response()->json([
+        'status' => 'success',
+        'data'   => $normalized
+    ], 200);
+}
 
 
-
-        // Use your actual column name 'sub_id'
-        $sections = tbl_section::where('sub_id', $subject_id)->get();
-
-        $normalized = $sections->map(function($s) {
-            return [
-                'section_id'   => $s->id ?? $s->section_id ?? null,
-                'subject_id'   => $s->sub_id ?? null,
-                'section_name' => $s->tital ?? $s->title ?? null,
-                'description'  => $s->dis ?? null,
-                'resource'     => $s->resource ?? null,
-            ];
-        })->values();
-
-        return response()->json([
-            'status' => 'success',
-            'data'   => $normalized
-        ], 200);
-    }
 }
 
 

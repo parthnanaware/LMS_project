@@ -12,18 +12,24 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('student_id');
             $table->unsignedBigInteger('course_id');
+
             $table->decimal('mrp', 10, 2);
             $table->decimal('sell_price', 10, 2);
+
+            // ⭐ NEW STATUS FIELD
+            $table->enum('status', ['paid', 'pending', 'reject'])
+                  ->default('pending');
+
             $table->timestamps();
 
-            // reference the actual users table (lowercase 'users')
+            // USER FK → users(id)
             $table->foreign('student_id')
                   ->references('id')->on('users')
                   ->onDelete('cascade');
 
-            // reference the actual courses table (fix name according to your DB)
+            // COURSE FK → tbl_corse(course_id)
             $table->foreign('course_id')
-                  ->references('course_id')->on('tbl_corse') // or 'tbl_courses' if you rename table
+                  ->references('course_id')->on('tbl_corse')
                   ->onDelete('cascade');
         });
     }
