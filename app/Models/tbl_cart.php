@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class tbl_cart extends Model
 {
-    protected $table = 'carts';
+      protected $table = 'carts';   
     protected $primaryKey = 'cart_id';
 
     protected $fillable = [

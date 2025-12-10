@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CorseController;
 use App\Http\Controllers\enrolmentController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\trialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -35,20 +36,19 @@ Route::resource('student', StudentController::class);
 Route::resource('subject', SubjectController::class);
 Route::resource('session', SessionController::class);
 Route::resource('enrolment', enrolmentController::class);
+Route::resource('order', OrderController::class);
 
 
 // toggle status route
 Route::patch('student/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('student.toggleStatus');
-
+// Auth routes
 Auth::routes();
-
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'login']);
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::patch('/student/status/{id}', [LoginController::class, 'toggleStatus'])->name('appuser.toggleStatus');
 // secion routes
-Route::get('/session/section/{section_id}', [SessionController::class, 'bySection'])
-     ->name('session.bySection');
+Route::get('/session/section/{section_id}', [SessionController::class, 'bySection'])->name('session.bySection');
 Route::get('/sessions/section/{section_id}', [SessionController::class, 'index'])->name('session.bySection');
 Route::get('/sections/create', [SectionController::class, 'create'])->name('section.create');
 Route::post('/sections', [SectionController::class, 'store'])->name('section.store');
@@ -66,6 +66,7 @@ Route::post('/enrolment/fetch-course', [enrolmentController::class, 'fetchCourse
 Route::get('/enrolment/create', [enrolmentController::class, 'create'])->name('enrolment.create');
 Route::post('/enrolment/store', [enrolmentController::class, 'store'])->name('enrolment.store');
 Route::get('/get-course-price/{id}', [enrolmentController::class, 'getCoursePrice']);
+Route::put('/enrolment/status/{id}', [enrolmentController::class, 'updateStatus'])->name('enrolment.updateStatus');
 
 // Session routes
 Route::get('session', [SessionController::class, 'index'])->name('session.index');
@@ -82,8 +83,22 @@ Route::post('session/{id}/update', [SessionController::class, 'update'])->name('
 Route::delete('session/{id}', [SessionController::class, 'destroy'])->name('session.destroy');
 
 
+// Enrolment status update
+Route::put('/enrolment/status/{id}',[enrolmentController::class, 'updateStatus'])->name('enrolment.updateStatus');
 
-// ⭐ STATUS UPDATE ROUTE (Direct from Index Page)
-Route::put('/enrolment/status/{id}',
-    [enrolmentController::class, 'updateStatus']
-)->name('enrolment.updateStatus');
+
+// Place Order (Triggered from checkout button)
+Route::post('/place-order', [OrderController::class, 'createOrder'])->name('order.place')->middleware('auth');
+
+// Order Success Page
+Route::get('/order-success/{id}', [OrderController::class, 'orderSuccess'])->name('order.success')->middleware('auth');
+
+     // Admin Routes for Order Management
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+
+    Route::get('/orders', [OrderController::class, 'adminIndex'])->name('admin.orders');
+
+    Route::get('/orders/{id}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
+
+    Route::get('/orders/enroll/{id}', [OrderController::class, 'enrollFromOrder'])->name('admin.orders.enroll');
+});

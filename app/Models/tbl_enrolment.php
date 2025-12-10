@@ -17,7 +17,8 @@ class tbl_enrolment extends Model
         'student_id',
         'course_id',
         'mrp',
-        'sell_price'
+        'sell_price',
+        'status'
     ];
 
     // If table uses timestamps

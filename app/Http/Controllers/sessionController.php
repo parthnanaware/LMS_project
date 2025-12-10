@@ -55,7 +55,6 @@ class SessionController extends Controller
         'exam' => 'nullable|file|mimes:pdf|max:10240',
     ]);
 
-    // store files consistently
     if ($request->hasFile('pdf')) {
         $data['pdf'] = $request->file('pdf')->store('sessions/pdfs', 'public');
     }
@@ -71,7 +70,6 @@ class SessionController extends Controller
     // create session
     tbl_session::create($data);
 
-    // redirect to section listing (if provided) otherwise index
     if ($request->filled('section_id')) {
         return redirect()->route('session.bySection', $request->section_id)
             ->with('success', 'Session added to section successfully.');
@@ -146,10 +144,7 @@ return redirect()->route('session.bySection', ['section_id' => $request->section
 
 
 
-    /**
-     * GET /api/sections/{section_id}/sessions
-     * Return all sessions that belong to a section.
-     */
+
     public function getBySection($section_id)
     {
         $sessions = tbl_session::where('section_id', $section_id)->get();
@@ -164,10 +159,7 @@ return redirect()->route('session.bySection', ['section_id' => $request->section
         ], 200);
     }
 
-    /**
-     * GET /api/sessions/{id}
-     * Return single session details.
-     */
+
     public function getSession($id)
     {
         $s = tbl_session::find($id);
@@ -182,20 +174,15 @@ return redirect()->route('session.bySection', ['section_id' => $request->section
         ], 200);
     }
 
-    /**
-     * Helper: normalize a tbl_session model into API-friendly structure.
-     */
+
     protected function normalizeSession(tbl_session $s)
     {
-        // prefer id or section-specific PK
         $sessionId = $s->id ?? $s->session_id ?? null;
 
-        // build public URLs if files exist on 'public' disk
         $videoUrl = null;
         if (!empty($s->video) && Storage::disk('public')->exists($s->video)) {
             $videoUrl = Storage::disk('public')->url($s->video);
         } elseif (!empty($s->video) && preg_match('/^https?:\\/\\//', $s->video)) {
-            // if you stored direct URLs instead of file path
             $videoUrl = $s->video;
         }
 
@@ -218,13 +205,13 @@ return redirect()->route('session.bySection', ['section_id' => $request->section
             'session_id'   => $sessionId,
             'section_id'   => $s->section_id ?? $s->sub_section_id ?? null,
             'title'        => $s->titel ?? $s->title ?? null,
-            'type'         => $s->type ?? null,         // e.g. video/pdf/task/exam or custom
+            'type'         => $s->type ?? null,
             'video_url'    => $videoUrl,
             'pdf_url'      => $pdfUrl,
             'task_url'     => $taskUrl,
             'exam_url'     => $examUrl,
             'description'  => $s->dis ?? $s->description ?? null,
-            'raw'          => $s, // optional: include raw model (can remove if you don't want)
+            'raw'          => $s,
         ];
     }
 }

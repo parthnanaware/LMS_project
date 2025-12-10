@@ -60,7 +60,14 @@
                 <span class="nav-link-text ms-1">Inrolement</span>
             </a>
             </li>
-            {{-- <li class="nav-item">
+           <li class="nav-item">
+    <a class="nav-link text-dark" href="{{ route('admin.orders') }}">
+        <i class="material-symbols-rounded opacity-5"></i>
+        <span class="nav-link-text ms-1">Order</span>
+    </a>
+</li>
+
+              {{-- <li class="nav-item">
             <a class="nav-link text-dark" href="{{ url('session') }}">
                 <i class="material-symbols-rounded opacity-5">format_textdirection_r_to_l</i>
                 <span class="nav-link-text ms-1">Session List</span>

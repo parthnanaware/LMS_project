@@ -19,9 +19,24 @@
 
                 <div class="card-body px-0 pt-0 pb-2">
 
-                    @if(session('success'))
-                        <div class="alert alert-success m-3">{{ session('success') }}</div>
-                    @endif
+                   @if(session('success'))
+    <div id="successAlert" class="alert alert-success m-3">
+        {{ session('success') }}
+    </div>
+
+    <script>
+        // Auto-hide notification after 3 seconds
+        setTimeout(() => {
+            let alertBox = document.getElementById('successAlert');
+            if (alertBox) {
+                alertBox.style.transition = "0.5s";
+                alertBox.style.opacity = "0";
+                setTimeout(() => alertBox.remove(), 500);
+            }
+        }, 3000);
+    </script>
+@endif
+    
 
                     <div class="table-responsive p-3">
 
@@ -47,7 +62,7 @@
                                     <td>{{ $e->mrp }}</td>
                                     <td>{{ $e->sell_price }}</td>
 
-                                    <!-- ⭐ STATUS DROPDOWN -->
+                                    <!-- STATUS DROPDOWN -->
                                     <td>
                                         <form action="{{ route('enrolment.updateStatus', $e->id) }}"
                                               method="POST">
@@ -57,6 +72,7 @@
                                             <select name="status"
                                                     class="form-select form-select-sm"
                                                     onchange="this.form.submit()">
+
                                                 <option value="pending"
                                                     {{ $e->status == 'pending' ? 'selected' : '' }}>
                                                     Pending
@@ -71,8 +87,8 @@
                                                     {{ $e->status == 'reject' ? 'selected' : '' }}>
                                                     Reject
                                                 </option>
-                                            </select>
 
+                                            </select>
                                         </form>
                                     </td>
 

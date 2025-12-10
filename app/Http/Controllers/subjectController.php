@@ -18,11 +18,7 @@ public function index()
     {
        return view('subject.create');
     }
-
-
-
-
-
+    
     public function store(Request $request, tbl_subject $subject)
 {
     $request->validate([

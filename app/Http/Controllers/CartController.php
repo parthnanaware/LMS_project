@@ -4,12 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\tbl_cart;
 use Illuminate\Http\Request;
-use App\Models\Cart;
-use App\Models\tbl_enrolment;
 use App\Models\tbl_corse;
 
 class CartController extends Controller
 {
+    // ===========================================
+    // GET CART WITH FULL COURSE DETAILS
+    // ===========================================
+      public function getCart($user_id)
+    {
+        $cart = tbl_cart::where('carts.user_id', $user_id)
+            ->join('tbl_corse', 'tbl_corse.course_id', '=', 'carts.course_id')
+            ->select(
+                'carts.cart_id',
+                'carts.user_id',
+                'carts.course_id',
+                'carts.quantity',
+                'tbl_corse.course_name',
+                'tbl_corse.sell_price',
+                'tbl_corse.course_image'
+            )
+            ->get();
+
+        // 🔥 Add FULL NGROK BASED IMAGE URL
+        foreach ($cart as $item) {
+            if ($item->course_image) {
+                $item->course_image_url =
+                    "https://61ae0168b457.ngrok-free.app/uploads/" . $item->course_image;
+            } else {
+                $item->course_image_url = null;
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $cart
+        ]);
+    }
+    // ===========================================
+    // ADD TO CART
+    // ===========================================
     public function addToCart(Request $request)
     {
         $request->validate([
@@ -17,68 +51,42 @@ class CartController extends Controller
             'course_id' => 'required|integer',
         ]);
 
-        $user_id = $request->user_id;
-        $course_id = $request->course_id;
-
-        // Check if course exists
-        $course = tbl_corse::find($course_id);
-        if (!$course) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Course not found',
-            ], 404);
-        }
-
-        // Prevent duplicate cart entry
-        $exists = tbl_cart::where('user_id', $user_id)
-                      ->where('course_id', $course_id)
-                      ->first();
+        // Check if already in cart
+        $exists = tbl_cart::where('user_id', $request->user_id)
+            ->where('course_id', $request->course_id)
+            ->first();
 
         if ($exists) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Already in cart.',
+                'message' => 'Course already in cart',
             ], 400);
         }
 
-        // ADD TO CART
+        // Add new item
         $cart = tbl_cart::create([
-            'user_id' => $user_id,
-            'course_id' => $course_id,
-            'quantity' => 1,
-        ]);
-
-        // ADD ENROLMENT ENTRY
-        tbl_enrolment::create([
-            'student_id' => $user_id,
-            'course_id'  => $course_id,
-            'mrp'        => $course->mrp,
-            'sell_price' => $course->sell_price,
-            'status'     => 'pending', // ⭐ default
+            'user_id'   => $request->user_id,
+            'course_id' => $request->course_id,
+            'quantity'  => 1
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Added to cart and enrolment created.',
+            'message' => 'Course added to cart',
             'data' => $cart
         ]);
     }
 
-    public function getCart($user_id)
-    {
-        $cart = tbl_cart::where('user_id', $user_id)->get();
-        return response()->json([
-            'status' => 'success',
-            'data'   => $cart,
-        ]);
-    }
-
+    // ===========================================
+    // REMOVE FROM CART
+    // ===========================================
     public function removeCart($cart_id)
     {
         tbl_cart::where('cart_id', $cart_id)->delete();
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Removed from cart'
+            'message' => 'Item removed from cart'
         ]);
     }
 }
