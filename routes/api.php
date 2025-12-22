@@ -59,3 +59,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ORDER ROUTES
 Route::post('/place-order/{user_id}', [OrderController::class, 'apiPlaceOrder']);
+
+Route::post('/session/upload-step', [SessionController::class, 'uploadStep']);
+Route::post('/session/approve-step', [SessionController::class, 'approveStep']);
+Route::get('/sessions/{id}', [SessionController::class, 'getSessionWithProgress']);
+
+
+Route::get('/cart/{user_id}', [CartController::class, 'getCart']);
+Route::post('/cart/add', [CartController::class, 'addToCart']);
+Route::delete('/cart/remove/{id}', [CartController::class, 'removeCart']);
+
+Route::post('/checkout', [CartController::class, 'checkout']);
+
+Route::middleware('auth:sanctum')->get(
+    '/my-enrolments',
+    [enrolmentController::class, 'myEnrolments']    
+);

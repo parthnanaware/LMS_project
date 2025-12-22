@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\tbl_corse;
 use App\Models\tbl_enrolment;
-use App\Models\tbl_student;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class enrolmentController extends Controller
 {
-     public function index()
+    public function index()
     {
-        $enrolments =tbl_enrolment::with('student')->get();  ;
+        $enrolments = tbl_enrolment::with('student', 'course')->get();
         return view('enrolment.index', compact('enrolments'));
     }
 
- public function create(Request $request)
+    public function create(Request $request)
     {
         $students = User::where('role', 'student')->get();
         $courses = tbl_corse::all();
@@ -26,7 +25,7 @@ class enrolmentController extends Controller
         $sell_price = null;
 
         if ($selectedCourseId) {
-            $course = tbl_corse::find($selectedCourseId);
+            $course = tbl_corse::where('course_id', $selectedCourseId)->first();
             if ($course) {
                 $mrp = $course->mrp;
                 $sell_price = $course->sell_price;
@@ -34,151 +33,125 @@ class enrolmentController extends Controller
         }
 
         return view('enrolment.create', compact(
-            'students', 'courses', 'selectedCourseId', 'mrp', 'sell_price'
+            'students',
+            'courses',
+            'selectedCourseId',
+            'mrp',
+            'sell_price'
         ));
     }
 
-   public function store(Request $request)
-{
-    $request->validate([
-        'student_id' => 'required|exists:users,id',
-        'course_id' => 'required|exists:tbl_corse,course_id', // <-- use correct table name
-        'mrp' => 'required|numeric',
-        'sell_price' => 'required|numeric',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'course_id'  => 'required|exists:tbl_corse,course_id',
+            'mrp'        => 'required|numeric',
+            'sell_price' => 'required|numeric',
+        ]);
 
-    $enrolment = new tbl_enrolment();
-    $enrolment->student_id = $request->student_id;
-    $enrolment->course_id = $request->course_id;
-    $enrolment->mrp = $request->mrp;
-    $enrolment->sell_price = $request->sell_price;
-    $enrolment->save();
+        tbl_enrolment::create([
+            'student_id' => $request->student_id,
+            'course_id'  => $request->course_id,
+            'mrp'        => $request->mrp,
+            'sell_price' => $request->sell_price,
+        ]);
 
-    return redirect()->route('enrolment.index')->with('success', 'Enrolment added successfully!');
-}
+        return redirect()
+            ->route('enrolment.index')
+            ->with('success', 'Enrolment added (Pending)');
+    }
 
     public function edit($id)
     {
         $enrolment = tbl_enrolment::findOrFail($id);
         $students = User::where('role', 'student')->get();
         $courses = tbl_corse::all();
-        return view('enrolment.edit', compact('enrolment', 'students', 'courses'));
+
+        return view('enrolment.edit', compact(
+            'enrolment',
+            'students',
+            'courses'
+        ));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-    'student_id' => 'required|exists:users,id', // or tbl_students,id
-    'course_id' => 'required|exists:tbl_corse,course_id',
-    'mrp' => 'required|numeric',
-    'sell_price' => 'required|numeric',
-]);
-
+            'student_id' => 'required|exists:users,id',
+            'course_id'  => 'required|exists:tbl_corse,course_id',
+            'mrp'        => 'required|numeric',
+            'sell_price' => 'required|numeric',
+        ]);
 
         $enrolment = tbl_enrolment::findOrFail($id);
-        $enrolment->update($request->all());
+        $enrolment->update([
+            'student_id' => $request->student_id,
+            'course_id'  => $request->course_id,
+            'mrp'        => $request->mrp,
+            'sell_price' => $request->sell_price,
+        ]);
 
-        return redirect()->route('enrolment.index')->with('success', 'Enrolment updated successfully!');
+        return redirect()
+            ->route('enrolment.index')
+            ->with('success', 'Enrolment updated');
     }
 
     public function destroy($id)
     {
-        $enrolment = tbl_enrolment::findOrFail($id);
-        $enrolment->delete();
+        tbl_enrolment::findOrFail($id)->delete();
 
-        return redirect()->route('enrolment.index')->with('success', 'Enrolment deleted successfully!');
-    }
-public function getCoursePrice($id)
-{
-    // Use correct model and primary key name
-    $course = tbl_corse::where('course_id', $id)->first();
-
-    if (!$course) {
-        return response()->json(['error' => 'Course not found'], 404);
+        return redirect()
+            ->route('enrolment.index')
+            ->with('success', 'Enrolment deleted');
     }
 
-    return response()->json([
-        'mrp' => $course->mrp,           // column in tbl_corse table
-        'sell_price' => $course->sell_price, // column in tbl_corse table
-    ]);
-}
-public function updateStatus(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required|in:pending,paid,reject'
-    ]);
+    public function getCoursePrice($id)
+    {
+        $course = tbl_corse::where('course_id', $id)->first();
 
-    $enrolment = tbl_enrolment::findOrFail($id);
-
-    $enrolment->status = $request->status;
-    $enrolment->save();
-
-    return redirect()->back()->with('success', 'Status updated successfully!');
-}
-
-public function myEnrolments(Request $request)
-{
-    try {
-
-        // Logged-in user check
-        $user = $request->user();
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access. Please login again.'
-            ], 401);
+        if (!$course) {
+            return response()->json(['error' => 'Course not found'], 404);
         }
 
-        // Validate user role if required
-        if ($user->role !== 'student') {
+        return response()->json([
+            'mrp' => $course->mrp,
+            'sell_price' => $course->sell_price,
+        ]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,paid,reject'
+        ]);
+
+        $enrolment = tbl_enrolment::findOrFail($id);
+        $enrolment->status = $request->status;
+        $enrolment->save();
+
+        return redirect()->back()->with('success', 'Status updated');
+    }
+
+    public function myEnrolments(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user || $user->role !== 'student') {
             return response()->json([
                 'success' => false,
-                'message' => 'Only students can view their enrolments.'
+                'message' => 'Unauthorized'
             ], 403);
         }
 
-        // Fetch enrolments
         $enrolments = tbl_enrolment::with('course')
             ->where('student_id', $user->id)
+            ->where('status', 'pending') 
             ->get();
 
-        // If no enrolments found
-        if ($enrolments->isEmpty()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'No enrolments found.',
-                'data' => []
-            ], 200);
-        }
-
-        // Success response
         return response()->json([
             'success' => true,
             'data' => $enrolments
-        ], 200);
-
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Requested data not found.',
-            'error' => $e->getMessage()
-        ], 404);
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong on the server.',
-            'error' => $e->getMessage(), // You can remove this in production
-        ], 500);
+        ]);
     }
 }
-
-
-
-
-
-}
-
-

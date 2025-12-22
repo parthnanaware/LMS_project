@@ -18,14 +18,11 @@ class tbl_corse extends Model
         'subject_id',
     ];
 
-    // subject_id JSON <-> array casting
     protected $casts = [
         'subject_id' => 'array',
     ];
 
-    // ❌ NO getSubjectIdAttribute here (double decode टाळलं)
 
-    // Optional helper: subjects via JSON ids (not a real relationship)
     public function subjects()
     {
         $ids = $this->subject_id ?? [];

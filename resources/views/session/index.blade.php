@@ -33,11 +33,8 @@
                     @endforeach
 
                     <script>
-                        // Auto-hide alerts after 3 seconds
-                        setTimeout(function() {
-                            document.querySelectorAll('.alert').forEach(function(alert) {
-                                alert.classList.remove('show');
-                                alert.classList.add('hide');
+                        setTimeout(function () {
+                            document.querySelectorAll('.alert').forEach(function (alert) {
                                 alert.style.display = 'none';
                             });
                         }, 3000);
@@ -56,63 +53,94 @@
                                         <th>Type</th>
                                         <th>Video</th>
                                         <th>PDF</th>
+                                        <th>Task</th>
+                                        <th>Exam</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    @foreach($sessions as $session)
-                                        <tr>
-                                            <td>{{ $session->id }}</td>
-                                            <td>{{ $session->titel }}</td>
-                                            <td>{{ ucfirst($session->type) }}</td>
+                                @foreach($sessions as $session)
+                                    <tr>
+                                        <td>{{ $session->id }}</td>
+                                        <td>{{ $session->titel }}</td>
+                                        <td>{{ ucfirst($session->type) }}</td>
 
-                                            <!-- Video -->
-                                            <td>
-                                                @if(!empty($session->video))
-                                                    @php
-                                                        $videoUrl = trim($session->video);
+                                        <!-- VIDEO -->
+                                        <td>
+                                            @if(!empty($session->video))
+                                                @php
+                                                    $videoUrl = trim($session->video);
 
-                                                        if (Str::contains($videoUrl, 'youtu.be/')) {
-                                                            $videoUrl = str_replace('youtu.be/', 'www.youtube.com/watch?v=', $videoUrl);
-                                                        } elseif (Str::contains($videoUrl, 'youtube.com/embed/')) {
-                                                            $videoUrl = str_replace('embed/', 'watch?v=', $videoUrl);
-                                                        } elseif (Str::contains($videoUrl, 'drive.google.com/file/d/')) {
-                                                            $fileId = Str::between($videoUrl, '/file/d/', '/');
-                                                            $videoUrl = 'https://drive.google.com/file/d/' . $fileId . '/view';
-                                                        } elseif (Str::endsWith($videoUrl, ['.mp4', '.webm', '.ogg'])) {
-                                                            $videoUrl = asset('storage/' . ltrim($videoUrl, '/'));
-                                                        }
-                                                    @endphp
+                                                    if (Str::contains($videoUrl, 'youtu.be/')) {
+                                                        $videoUrl = str_replace('youtu.be/', 'www.youtube.com/watch?v=', $videoUrl);
+                                                    } elseif (Str::contains($videoUrl, 'youtube.com/embed/')) {
+                                                        $videoUrl = str_replace('embed/', 'watch?v=', $videoUrl);
+                                                    } elseif (Str::contains($videoUrl, 'drive.google.com/file/d/')) {
+                                                        $fileId = Str::between($videoUrl, '/file/d/', '/');
+                                                        $videoUrl = "https://drive.google.com/file/d/{$fileId}/view";
+                                                    } elseif (Str::endsWith($videoUrl, ['.mp4', '.webm', '.ogg'])) {
+                                                        $videoUrl = asset('storage/' . ltrim($videoUrl, '/'));
+                                                    }
+                                                @endphp
 
-                                                    <a href="{{ $videoUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-play-circle me-1"></i> View Video
-                                                    </a>
-                                                @else
-                                                    <span class="text-muted">No Video</span>
-                                                @endif
-                                            </td>
+                                                <a href="{{ $videoUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-play-circle me-1"></i> View Video
+                                                </a>
+                                            @else
+                                                <span class="text-muted">No Video</span>
+                                            @endif
+                                        </td>
 
-                                            <!-- PDF -->
-                                            <td>
-                                                @if($session->pdf)
-                                                    <a href="{{ asset('storage/' . $session->pdf) }}" target="_blank" class="btn btn-outline-info btn-sm">View PDF</a>
-                                                @else
-                                                    <span class="text-muted">No PDF</span>
-                                                @endif
-                                            </td>
+                                        <!-- PDF -->
+                                        <td>
+                                            @if($session->pdf)
+                                                <a href="{{ asset('storage/' . $session->pdf) }}" target="_blank"
+                                                   class="btn btn-outline-info btn-sm">View PDF</a>
+                                            @else
+                                                <span class="text-muted">No PDF</span>
+                                            @endif
+                                        </td>
 
-                                            <!-- Actions -->
-                                            <td class="d-flex gap-1 justify-content-center">
-                                                <a href="{{ route('session.edit', $session->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                                <form action="{{ route('session.destroy', $session->id) }}" method="POST" style="display:inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this session?')">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                        <!-- TASK -->
+                                        <td>
+                                            @if($session->task)
+                                                <a href="{{ asset('storage/' . $session->task) }}" target="_blank"
+                                                   class="btn btn-outline-warning btn-sm">View Task</a>
+                                            @else
+                                                <span class="text-muted">No Task</span>
+                                            @endif
+                                        </td>
+
+                                        <!-- EXAM -->
+                                        <td>
+                                            @if($session->exam)
+                                                <a href="{{ asset('storage/' . $session->exam) }}" target="_blank"
+                                                   class="btn btn-outline-danger btn-sm">View Exam</a>
+                                            @else
+                                                <span class="text-muted">No Exam</span>
+                                            @endif
+                                        </td>
+
+                                        <!-- ACTIONS -->
+                                        <td class="d-flex gap-1 justify-content-center">
+                                            <a href="{{ route('session.edit', $session->id) }}"
+                                               class="btn btn-sm btn-warning">Edit</a>
+
+                                            <form action="{{ route('session.destroy', $session->id) }}"
+                                                  method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Delete this session?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
                                 </tbody>
+
                             </table>
                         </div>
                     @endif

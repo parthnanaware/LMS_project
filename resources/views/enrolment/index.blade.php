@@ -36,7 +36,7 @@
         }, 3000);
     </script>
 @endif
-    
+
 
                     <div class="table-responsive p-3">
 
@@ -73,13 +73,13 @@
                                                     class="form-select form-select-sm"
                                                     onchange="this.form.submit()">
 
-                                                <option value="pending"
-                                                    {{ $e->status == 'pending' ? 'selected' : '' }}>
+                                                <option value="paid"
+                                                    {{ $e->status == 'paid' ? 'selected' : '' }}>
                                                     Pending
                                                 </option>
 
-                                                <option value="paid"
-                                                    {{ $e->status == 'paid' ? 'selected' : '' }}>
+                                                <option value="pending"
+                                                    {{ $e->status == 'pending' ? 'selected' : '' }}>
                                                     Paid
                                                 </option>
 

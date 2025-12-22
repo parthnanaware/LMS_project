@@ -17,18 +17,15 @@ return new class extends Migration
 
             $table->integer('quantity')->default(1);
 
-            // Prices
             $table->decimal('mrp', 10, 2);
             $table->decimal('sell_price', 10, 2);
 
             $table->timestamps();
 
-            // ORDER FK
             $table->foreign('order_id')
                 ->references('order_id')->on('order_master')
                 ->onDelete('cascade');
 
-            // COURSE FK
             $table->foreign('course_id')
                 ->references('course_id')->on('tbl_corse')
                 ->onDelete('cascade');

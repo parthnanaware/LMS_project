@@ -16,18 +16,15 @@ return new class extends Migration
             $table->decimal('mrp', 10, 2);
             $table->decimal('sell_price', 10, 2);
 
-            // ⭐ NEW STATUS FIELD
             $table->enum('status', ['paid', 'pending', 'reject'])
                   ->default('pending');
 
             $table->timestamps();
 
-            // USER FK → users(id)
             $table->foreign('student_id')
                   ->references('id')->on('users')
                   ->onDelete('cascade');
 
-            // COURSE FK → tbl_corse(course_id)
             $table->foreign('course_id')
                   ->references('course_id')->on('tbl_corse')
                   ->onDelete('cascade');

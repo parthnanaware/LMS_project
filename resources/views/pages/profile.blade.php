@@ -15,7 +15,7 @@
                             <div class="profile-avatar-wrapper">
                                 @if(Auth::user()->photo)
                                     <img src="{{ asset('storage/profiles/' . Auth::user()->photo) }}"
-                                         alt="Profile Photo"
+                                         alt="Profile Photo"    0
                                          class="profile-avatar shadow-lg">
                                 @else
                                     <div class="profile-avatar-placeholder shadow-lg">
@@ -45,7 +45,7 @@
                         <!-- Account Information -->
                         <div class="col-md-6">
                             <div class="info-card h-100">
-                                <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex align-items-center mb-3">b ----
                                     <div class="icon-wrapper bg-primary">
                                         <i class="fas fa-user-circle text-white"></i>
                                     </div>
@@ -66,15 +66,16 @@
                                             <p class="mb-0 fw-semibold">{{ Auth::user()->email }}</p>
                                         </div>
                                     </div>
-                                    <div class="info-item d-flex align-items-center py-2">
-                                        <i class="fas fa-calendar-plus text-primary me-3"></i>
-                                        <div>
-                                            <small class="text-muted">Member Since</small>
-                                            <p class="mb-0 fw-semibold">
-                                                {{ Auth::user()->created_at->format('F d, Y') }}
-                                            </p>
-                                        </div>
-                                    </div>
+                                 <div class="info-item d-flex align-items-center py-2">
+    <i class="fas fa-calendar-plus text-primary me-3"></i>
+    <div>
+        <small class="text-muted">Member Since</small>
+        <p class="mb-0 fw-semibold">
+            {{ \Carbon\Carbon::parse(Auth::user()->created_at)->format('F d, Y') }}
+        </p>
+    </div>
+</div>
+
                                 </div>
                             </div>
                         </div>
@@ -112,12 +113,13 @@
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="d-flex gap-3 justify-content-center flex-wrap">
-                                <form action="{{ route('student.edit', ['student' => auth()->user()]) }}" method="GET">
-                                    @csrf
-                                    <button type="submit" class="btn btn-primary btn-lg px-4 py-2 rounded-2 shadow-sm">
-                                        <i class="fas fa-edit me-2"></i>Edit Profile
-                                    </button>
-                                </form>
+                                <form action="{{ route('student.edit', auth()->id()) }}" method="GET">
+    @csrf
+    <button type="submit" class="btn btn-primary btn-lg px-4 py-2 rounded-2 shadow-sm">
+        <i class="fas fa-edit me-2"></i>Edit Profile
+    </button>
+</form>
+
 
                                 <button class="btn btn-outline-primary btn-lg px-4 py-2 rounded-2 shadow-sm">
                                     <i class="fas fa-share-alt me-2"></i>Share Profile
@@ -161,10 +163,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>          
     </div>
 </div>
-
 <style>
 .profile-header {
     position: relative;

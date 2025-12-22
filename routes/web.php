@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\SessionProgressController;
 use App\Http\Controllers\CorseController;
 use App\Http\Controllers\enrolmentController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\trialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
@@ -102,3 +102,23 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('/orders/enroll/{id}', [OrderController::class, 'enrollFromOrder'])->name('admin.orders.enroll');
 });
+
+Route::get('/admin/session-uploads', [SessionController::class, 'adminList'])
+    ->name('admin.session.uploads');
+
+Route::post('/admin/session-uploads/approve', [SessionController::class, 'adminApprove'])
+    ->name('admin.session.uploads.approve');
+
+Route::post('/admin/session-uploads/reject', [SessionController::class, 'adminReject'])
+    ->name('admin.session.uploads.reject');
+
+
+
+    Route::get('/session-progress',
+        [SessionProgressController::class, 'index']);
+
+    Route::post('/session-progress/{id}/approve-pdf',
+        [SessionProgressController::class, 'approvePdf']);
+    Route::post('/session-progress/{id}/reject-pdf',
+        [SessionProgressController::class, 'rejectPdf'])
+        ;

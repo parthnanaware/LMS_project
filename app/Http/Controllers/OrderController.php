@@ -155,7 +155,6 @@ public function apiPlaceOrder($userId)
 }
 
 
-// ADMIN FUNCTIONS
 public function adminIndex()
 {
     $orders = OrderMaster::with('user')->orderBy('order_id', 'DESC')->get();
@@ -178,7 +177,6 @@ public function enrollFromOrder($order_id)
     try {
         foreach ($order->items as $item) {
 
-            // prevent duplicate enrollment
             $exists = tbl_enrolment::where('student_id', $studentId)
                 ->where('course_id', $item->course_id)
                 ->exists();
