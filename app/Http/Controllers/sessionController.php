@@ -145,41 +145,59 @@ class SessionController extends Controller
         return redirect()->route('session.index')->with('success', 'Session deleted successfully.');
     }
 
-
-
-
-
-
 public function getBySection(Request $request, $section_id)
 {
     try {
         $userId = $request->query('user_id');
 
-        $sessions = tbl_session::where('section_id', $section_id)->get();
+        $sessions = tbl_session::where('section_id', $section_id)
+            ->orderBy('id')
+            ->get();
 
-        $normalized = $sessions->map(function ($s) use ($userId) {
-            return $this->normalizeSession($s, $userId);
+        $previousUnlocked = true;
+
+        $data = $sessions->map(function ($session) use ($userId, &$previousUnlocked) {
+
+            // 🔥 FORCE CREATE ROW
+            $progress = SessionProgress::firstOrCreate(
+                [
+                    'user_id'    => $userId,
+                    'session_id' => $session->id,
+                ],
+                [
+                    'pdf_status' => 'locked',
+                ]
+            );
+
+            $pdfStatus = $progress->pdf_status;
+
+            $isLocked = !$previousUnlocked;
+
+            // 🔓 NEXT UNLOCK RULE
+            $previousUnlocked = ($pdfStatus === 'approved');
+
+            return [
+                'session_id' => $session->id,
+                'title'      => $session->title,
+
+                'pdf_status' => $pdfStatus,
+                'is_locked'  => $isLocked,
+                'can_upload' => !$isLocked && $pdfStatus !== 'approved',
+            ];
         });
 
         return response()->json([
             'status' => 'success',
-            'data'   => $normalized->values()
-        ], 200);
-
-    } catch (\Throwable $e) {
-        \Log::error('getBySection error', [
-            'msg' => $e->getMessage(),
-            'line'=> $e->getLine(),
+            'data'   => $data,
         ]);
 
+    } catch (\Throwable $e) {
         return response()->json([
             'status' => 'error',
-            'message'=> 'Internal Server Error'
+            'msg'    => $e->getMessage(),
         ], 500);
     }
 }
-
-
 
 
 
@@ -235,55 +253,120 @@ protected function normalizeSession(tbl_session $s, $userId = null)
 
 
 
-
-
-
-
 public function uploadStep(Request $request)
+{
+    $request->validate([
+        'user_id'    => 'required|integer',
+        'session_id' => 'required|integer',
+        'step'       => 'required|in:video,pdf,task,exam',
+        'file'       => 'required|file|mimes:pdf|max:10240',
+
+        'course_id'  => 'nullable|integer',
+        'subject_id' => 'nullable|integer',
+        'section_id' => 'nullable|integer',
+    ]);
+
+    $path = $request->file('file')->store(
+        "progress/{$request->user_id}/{$request->session_id}",
+        'public'
+    );
+
+    // Base data (common)
+    $data = [
+        'course_id'  => $request->course_id,
+        'subject_id' => $request->subject_id,
+        'section_id' => $request->section_id,
+    ];
+
+    // Step-wise update (THIS FIXES NULL / WRONG DATA)
+    if ($request->step === 'pdf') {
+        $data['pdf_file']   = $path;
+        $data['pdf_status'] = 'pending';
+    }
+
+    if ($request->step === 'task') {
+        $data['task_file']   = $path;
+        $data['task_status'] = 'pending';
+    }
+
+    if ($request->step === 'exam') {
+        $data['exam_file']   = $path;
+        $data['exam_status'] = 'pending';
+    }
+
+    $progress = SessionProgress::updateOrCreate(
+        [
+            'user_id'    => $request->user_id,
+            'session_id' => $request->session_id,
+        ],
+        $data
+    );
+
+    return response()->json([
+        'status' => 'success',
+        'data'   => $progress,
+    ]);
+}
+
+
+
+public function sessionProgress(Request $request)
+    {
+        $request->validate([
+            'user_id'    => 'required|integer',
+            'session_id' => 'required|integer',
+        ]);
+
+        $progress = SessionProgress::where([
+            'user_id'    => $request->user_id,
+            'session_id' => $request->session_id,
+        ])->first();
+
+        return response()->json([
+            'video_unlocked' => true,
+            'pdf_unlocked'   => true,
+            'task_unlocked'  => $progress?->pdf_status === 'approved',
+            'exam_unlocked'  => $progress?->task_status === 'approved',
+
+            'pdf_status'  => $progress?->pdf_status  ?? 'not_uploaded',
+            'task_status' => $progress?->task_status ?? 'locked',
+            'exam_status' => $progress?->exam_status ?? 'locked',
+        ]);
+    }
+
+
+
+public function changePdfStatus(Request $request)
 {
     try {
         $request->validate([
             'user_id'    => 'required|integer',
             'session_id' => 'required|integer',
-            'step'       => 'required|in:video,pdf,task,exam',
-            'file'       => 'required|file|mimes:pdf|max:10240',
-
-            'course_id'  => 'nullable|integer',
-            'subject_id' => 'nullable|integer',
-            'section_id' => 'nullable|integer',
+            'pdf_status' => 'required|in:pending,approved,completed,rejected',
         ]);
 
-        $progress = SessionProgress::firstOrCreate(
-            [
-                'user_id'    => $request->user_id,
-                'session_id' => $request->session_id,
-            ]
-        );
+        $progress = SessionProgress::where('user_id', $request->user_id)
+            ->where('session_id', $request->session_id)
+            ->first();
 
-        // Save relation ids
-        $progress->course_id  = $request->course_id;
-        $progress->subject_id = $request->subject_id;
-        $progress->section_id = $request->section_id;
-
-        $path = $request->file('file')->store(
-            "progress/{$request->user_id}/{$request->session_id}",
-            'public'
-        );
-
-        if ($request->step === 'pdf') {
-            $progress->pdf_file = $path;
-            $progress->pdf_status = 'pending';
+        if (!$progress) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Session progress not found',
+            ], 404);
         }
 
+        // Update status
+        $progress->pdf_status = $request->pdf_status;
         $progress->save();
 
         return response()->json([
-            'status' => 'success',
-            'path'   => $path,
+            'status'     => 'success',
+            'pdf_status' => $progress->pdf_status,
         ], 200);
 
     } catch (\Throwable $e) {
-        \Log::error('UPLOAD_STEP_ERROR', [
+        \Log::error('CHANGE_PDF_STATUS_ERROR', [
             'message' => $e->getMessage(),
             'line'    => $e->getLine(),
             'file'    => $e->getFile(),
@@ -295,8 +378,6 @@ public function uploadStep(Request $request)
         ], 500);
     }
 }
-
-
 
 
 
@@ -324,64 +405,11 @@ public function uploadStep(Request $request)
 
 
 
- public function adminApprove(Request $request)
-{
-    $request->validate([
-        'progress_id' => 'required|integer',
-        'step'        => 'required|in:video,pdf,task,exam',
-    ]);
-
-    $progress = SessionProgress::findOrFail($request->progress_id);
-
-    $statusField = $request->step . '_status';
-    $progress->$statusField = 'approved';
-    $progress->save();
-
-    return back()->with('success', 'Approved successfully!');
-}
 
 
 
 
 
-  public function adminReject(Request $request)
-{
-    $request->validate([
-        'progress_id' => 'required|integer',
-        'step'        => 'required|in:video,pdf,task,exam',
-    ]);
 
-    $progress = SessionProgress::findOrFail($request->progress_id);
-
-    switch ($request->step) {
-        case 'video':
-            Storage::disk('public')->delete($progress->video_file);
-            $progress->video_file = null;
-            $progress->video_status = 'locked';
-            break;
-
-        case 'pdf':
-            Storage::disk('public')->delete($progress->pdf_file);
-            $progress->pdf_file = null;
-            $progress->pdf_status = 'locked';
-            break;
-
-        case 'task':
-            Storage::disk('public')->delete($progress->task_file);
-            $progress->task_file = null;
-            $progress->task_status = 'locked';
-            break;
-
-        case 'exam':
-            Storage::disk('public')->delete($progress->exam_file);
-            $progress->exam_file = null;
-            $progress->exam_status = 'locked';
-            break;
-    }
-
-    $progress->save();
-
-    return back()->with('success', 'Upload rejected.');
-}
 
 }

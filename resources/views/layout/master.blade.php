@@ -67,13 +67,13 @@
     </a>
 </li>
 
-{{-- <li class="nav-item">
+<li class="nav-item">
     <a class="nav-link text-dark"
        href="{{ route('admin.session.progress') }}">
         <i class="material-symbols-rounded opacity-5"></i>
         <span class="nav-link-text ms-1">Session Progress</span>
     </a>
-</li> --}}
+</li>
 
 
 

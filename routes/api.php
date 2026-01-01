@@ -41,6 +41,9 @@ Route::get('/subjects/{subject_id}/sections', [SectionController::class, 'getSec
 
 // SESSION ROUTES
 Route::get('/sections/{section_id}/sessions', [SessionController::class, 'getBySection']);
+Route::post('/session/progress', [SessionController::class, 'sessionProgress']);
+
+
 Route::get('/sessions/{id}', [SessionController::class, 'getSession']);
 
 // SECTION ROUTES
@@ -73,5 +76,5 @@ Route::post('/checkout', [CartController::class, 'checkout']);
 
 Route::middleware('auth:sanctum')->get(
     '/my-enrolments',
-    [enrolmentController::class, 'myEnrolments']    
+    [enrolmentController::class, 'myEnrolments']
 );

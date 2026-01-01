@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\SessionProgressController;
+use App\Http\Controllers\sessionPController;
+use App\Http\Controllers\SessionProgressController;
 use App\Http\Controllers\CorseController;
 use App\Http\Controllers\enrolmentController;
 use App\Http\Controllers\OrderController;
@@ -93,6 +94,27 @@ Route::post('/place-order', [OrderController::class, 'createOrder'])->name('orde
 // Order Success Page
 Route::get('/order-success/{id}', [OrderController::class, 'orderSuccess'])->name('order.success')->middleware('auth');
 
+
+
+
+
+Route::prefix('admin')->group(function () {
+
+    // Admin list page
+    Route::get(
+        '/session-progress',
+        [SessionPController::class, 'index']
+    )->name('admin.session.progress');
+
+    // Update ONLY pdf_status
+    Route::post(
+        '/session-progress/{id}/update-status',
+        [SessionPController::class, 'updateStatus']
+    )->name('admin.session.progress.updateStatus');
+
+});
+
+
      // Admin Routes for Order Management
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
@@ -103,22 +125,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/orders/enroll/{id}', [OrderController::class, 'enrollFromOrder'])->name('admin.orders.enroll');
 });
 
-Route::get('/admin/session-uploads', [SessionController::class, 'adminList'])
-    ->name('admin.session.uploads');
+    Route::get('/admin/session-uploads', [SessionController::class, 'adminList'])
+        ->name('admin.session.uploads');
 
-Route::post('/admin/session-uploads/approve', [SessionController::class, 'adminApprove'])
-    ->name('admin.session.uploads.approve');
+    Route::post('/admin/session-uploads/approve', [SessionController::class, 'adminApprove'])
+        ->name('admin.session.uploads.approve');
 
-Route::post('/admin/session-uploads/reject', [SessionController::class, 'adminReject'])
-    ->name('admin.session.uploads.reject');
+    Route::post('/admin/session-uploads/reject', [SessionController::class, 'adminReject'])
+        ->name('admin.session.uploads.reject');
 
-
-
-    Route::get('/session-progress',
-        [SessionProgressController::class, 'index']);
-
-    Route::post('/session-progress/{id}/approve-pdf',
-        [SessionProgressController::class, 'approvePdf']);
-    Route::post('/session-progress/{id}/reject-pdf',
-        [SessionProgressController::class, 'rejectPdf'])
-        ;
