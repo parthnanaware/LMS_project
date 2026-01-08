@@ -76,6 +76,11 @@ Route::get('session/section/{section_id}', [SessionController::class, 'bySection
 // Create
 Route::get('session/create', [SessionController::class, 'create'])->name('session.create');
 Route::get('session/create/{section_id}', [SessionController::class, 'createForSection'])->name('session.createForSection');
+Route::prefix('session')->group(function () {
+    Route::get('/edit/{id}', [SessionController::class, 'edit'])->name('session.edit');
+    Route::put('/update/{id}', [SessionController::class, 'update'])->name('session.update');
+    Route::delete('/delete/{id}', [SessionController::class, 'destroy'])->name('session.destroy');
+});
 
 // crude
 Route::post('session/store', [SessionController::class, 'store'])->name('session.store');

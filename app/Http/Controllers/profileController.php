@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -88,6 +89,5 @@ public function apiUpdateProfile(Request $request)
         ]
     ], 200);
 }
-
 
 }

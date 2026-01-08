@@ -16,10 +16,17 @@ class tbl_session extends Model
         'pdf',
         'task',
         'exam',
+        'is_locked',
     ];
 
     public function section()
     {
         return $this->belongsTo(tbl_section::class, 'section_id');
     }
+
+
+    public function session()
+{
+    return $this->belongsTo(tbl_session::class, 'session_id');
+}
 }

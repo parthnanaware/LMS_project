@@ -6,6 +6,7 @@ use App\Http\Controllers\profileController;
 use App\Http\Controllers\CorseController;
 use App\Http\Controllers\enrolmentController;
 use App\Http\Controllers\SectionController;
+use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\studentController;
 use App\Http\Controllers\subjectController;
@@ -78,3 +79,28 @@ Route::middleware('auth:sanctum')->get(
     '/my-enrolments',
     [enrolmentController::class, 'myEnrolments']
 );
+Route::get('/sections/{section_id}/sessions', [SessionController::class, 'getBySection']);
+Route::post('/session/video-complete', [SessionController::class, 'videoComplete']);
+Route::post('/session/upload-pdf', [SessionController::class, 'uploadStep']);
+Route::get('/sessions/{id}', [SessionController::class, 'show']);
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    // 🔑 Change Password
+    Route::post('/change-password', [SecurityController::class, 'changePassword']);
+
+    // 📱 Active Sessions (Sanctum Tokens)
+    Route::get('/sessions', [SecurityController::class, 'sessions']);
+
+    // 🚪 Logout Single Session
+    Route::delete('/sessions/{id}', [SecurityController::class, 'logoutSession']);
+
+    // 🚀 Logout From All Devices
+    Route::post('/logout-all', [SecurityController::class, 'logoutAll']);
+
+    // ⚠️ Delete Account
+    Route::delete('/delete-account', [SecurityController::class, 'deleteAccount']);
+
+});

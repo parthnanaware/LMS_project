@@ -50,7 +50,6 @@
                 'password' => 'hashed',
             ];
         }
-// inside User model
 public function enrolments()
 {
     return $this->hasMany(\App\Models\tbl_enrolment::class, 'student_id');
